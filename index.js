@@ -136,13 +136,14 @@ app.get("/data", auth, async (req, res) => {
 
 // stories an user 
 app.get("/", async (req, res) => {
-  res.send("hello")
-  // const person = await Person.find({}, { email: 1 })
+  // res.send("hello")
+  const person = await Person.find({}, { email: 1 })
   //const user= await Person.find({},{name:1}).populate('Posts')
 
   // const posts = await Story.find().sort({ _id: -1 })
   //const user=await Story.find({}).populate('creater')
   //console.log(user.creater[0].name)
+  res.send(person)
   // res.send(
   //   posts)
   // res.end()
