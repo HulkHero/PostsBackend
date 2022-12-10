@@ -29,8 +29,8 @@ app.use(express.urlencoded({
 app.use(bodyParser.json());
 
 app.use(cors());
-console.log("env", process.env.MONGODB_URL)
-mongoose.connect(process.env.MONGODB_URL).then((err, res) => console.log(err));
+// console.log("env", process.env.MONGODB_URL)
+mongoose.connect("mongodb+srv://Hulk:Hulk%401322@cluster0.cmdv1.mongodb.net/hulk2?retryWrites=true&w=majority").then((err, res) => console.log(err));
 
 app.use(cookieParser());
 
