@@ -313,6 +313,7 @@ app.post('/avatar', uploadProfile.single('avatar'), async (rek, res) => {
         }
       })
       console.log(docs); // print out what it sends back
+      res.send("saved")
     }
     else // if it does not 
     {
