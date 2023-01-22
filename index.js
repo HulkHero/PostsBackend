@@ -575,13 +575,58 @@ app.put("/acceptRekuest", async (rek, res) => {
 
 })
 
+
+app.get("/myFriends/:userId", async (rek, res) => {
+
+  try {
+    var userId = rek.params.userId;
+    console.log("userId: ", userId);
+    // res.send(user);
+    console.log(typeof userId)
+  }
+  catch (err) {
+    res.send(err)
+  }
+  try {
+    const user = await Friends.findOne({ createrId: userId }, { friends: 1 })
+    // console.log("friends", user.friends);
+    let friendsId = [];
+    user.friends.forEach((friend) => {
+      friendsId.push(friend.toString());
+
+    })
+
+    // user.friends.forEach(async (friend) => {})
+    // Profile.find({ createrId: { $in: friendsId } }, (err, docs) => {
+    //   if (err) {
+    //     // handle error
+    //     console.log("err,inside ")
+    //   }
+    //   console.log(docs);
+    //   console.log("docs")
+    // });
+    Profile.find({ createrId: { $in: friendsId } }).populate("createrId", "name").select({ "Status": 1, "avatar": 1, "createrId": 1 }).exec((err, docs) => {
+      if (err) {
+        console.log("err,inside ")
+        res.send("error")
+      }
+
+      console.log("docs")
+      res.send(docs)
+    })
+  }
+  catch (err) {
+    console.log("not found")
+    res.send("error2")
+  }
+
+
+})
+
 app.get("/showFriends/:userId", async (rek, res) => {
   try {
     var userId = rek.params.userId;
-
-
     // res.send(user);
-
   }
   catch (err) {
     res.send(err)
