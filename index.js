@@ -174,15 +174,22 @@ app.get("/batchData/:skip/:limit", async (rek, res) => {
     var skip = rek.params.skip;
     var limit = rek.params.limit;
     console.log(skip, limit)
-    await Story.find().sort({ _id: -1 }).skip(skip).limit(limit).then((result) => {
+    await Story.find().sort({ _id: -1 }).skip(skip).limit(limit).populate({ path: "creater", select: "profile", populate: { path: "profile", select: "avatar" } }).then((result) => {
       if (result.length > 0) {
-
         res.send(result)
       }
       else {
         res.status(300).send("not found")
       }
     })
+    // await Story.find().sort({ _id: -1 }).skip(skip).limit(limit).then((result) => {
+    //   if (result.length > 0) {
+    //     res.send(result)
+    //   }
+    //   else {
+    //     res.status(300).send("not found")
+    //   }
+    // })
   }
   catch (error) {
     console.log(error, "err")
@@ -593,18 +600,7 @@ app.get("/myFriends/:userId", async (rek, res) => {
     let friendsId = [];
     user.friends.forEach((friend) => {
       friendsId.push(friend.toString());
-
     })
-
-    // user.friends.forEach(async (friend) => {})
-    // Profile.find({ createrId: { $in: friendsId } }, (err, docs) => {
-    //   if (err) {
-    //     // handle error
-    //     console.log("err,inside ")
-    //   }
-    //   console.log(docs);
-    //   console.log("docs")
-    // });
     Profile.find({ createrId: { $in: friendsId } }).populate("createrId", "name").select({ "Status": 1, "avatar": 1, "createrId": 1 }).exec((err, docs) => {
       if (err) {
         console.log("err,inside ")
