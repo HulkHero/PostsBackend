@@ -275,10 +275,23 @@ app.post('/addStory', uploadProfile.single("image"), async (rek, res) => {
   console.log("entering stories")
   heading = rek.body.heading;
   caption = rek.body.caption;
-  const buffer = await sharp(rek.file.buffer).resize({ width: 400, height: 250 }).png().toBuffer()
+  console.log(rek.file, "file")
+  var buffer;
+  var imagename;
+  if (rek.file) {
+    console.log("image stories")
+    buffer = await sharp(rek.file.buffer).resize({ width: 400, height: 250 }).png().toBuffer()
+    imagename = rek.file.filename;
+  }
+  else {
+    console.log("no image stories")
+    buffer = null;
+    imagename = null;
+  }
   id = rek.body.id;
   creatername = rek.body.creatername;
   console.log("id", id)
+  console.log("buffer", buffer)
   const story1 = await new Story({
     heading: heading,
     creater: ObjectId(id),
@@ -286,7 +299,7 @@ app.post('/addStory', uploadProfile.single("image"), async (rek, res) => {
     date: Date.now(),
 
     creatername: creatername,
-    imagename: rek.file.filename,
+    imagename: imagename,
     image: {
       data: buffer,
       contentType: 'image/png'
@@ -661,32 +674,32 @@ app.get("/showFriends/:userId", async (rek, res) => {
     console.log(profile, "profile updated")
 
 
-    profile.friends.forEach(async (element) => {
-      console.log(element._id, "img")
-      var img1 = await Profile.findOne({ createrId: element }, { avatar: 1 })
-      console.log(img1._id, "avatar")
-      if (img1) {
-        img[count] = img1
-        img1 = null
-        // console.log(img,"img1")
-        count = count + 1;
-        console.log(count, "count")
-      }
-      console.log(count, "count1")
+    // profile.friends.forEach(async (element) => {
+    //   console.log(element._id, "img")
+    //   var img1 = await Profile.findOne({ createrId: element }, { avatar: 1 })
+    //   console.log(img1._id, "avatar")
+    //   if (img1) {
+    //     img[count] = img1
+    //     img1 = null
+    //     // console.log(img,"img1")
+    //     count = count + 1;
+    //     console.log(count, "count")
+    //   }
+    //   console.log(count, "count1")
 
-    });
-    console.log(count, "count2")
-    console.log("ppp", profile.friends.length)
-    console.log("psda", count)
-    if (profile.length) {
+    // });
+    // console.log(count, "count2")
+    // console.log("ppp", profile.friends.length)
+    // console.log("psda", count)
+    // if (profile.length) {
 
 
 
-      if (count == profile.friends.length) {
-        console.log("hello11")
-        console.log(img, "hello")
-      }
-    }
+    //   if (count == profile.friends.length) {
+    //     console.log("hello11")
+    //     console.log(img, "hello")
+    //   }
+    // }
 
     // const img=await Profile.findMany({_id:profile._id})
 
