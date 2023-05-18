@@ -6,12 +6,12 @@ var ObjectId = require('mongodb').ObjectId;
 const HttpError = require('./http-error');
 const Person = require('./models');
 const Profile = require('./ProfileModel');
-const fs= require('fs');
+const fs = require('fs');
 
 
 const getUsers = async (req, res, next) => {
   let users;
-  
+
   try {
     users = await User.find({}, '-password');
   } catch (err) {
@@ -32,27 +32,27 @@ const signup = async (req, res, next) => {
       new HttpError('Invalid inputs passed, please check your data.', 422)
     );
   }
- console.log("hello")
-  const { name,email,password } = req.body;
- console.log(name)
- // let existingUser;
- // try {
+  console.log("hello")
+  const { name, email, password } = req.body;
+  console.log(name)
+  // let existingUser;
+  // try {
   //  existingUser = await User.findOne({ name : name });
-   // console.log(existingUser);
+  // console.log(existingUser);
   //} catch (err) {
-   // const error = new HttpError(
-    //  'Signing up failed, please try again later.',
-     // 500
-    //);
-   // return next(error);
+  // const error = new HttpError(
+  //  'Signing up failed, please try again later.',
+  // 500
+  //);
+  // return next(error);
   //}
 
   //if (existingUser) {
-   // const error = new HttpError(
-    //  'User exists already, please login instead.',
-     // 422
-    //);
-   // return next(error);
+  // const error = new HttpError(
+  //  'User exists already, please login instead.',
+  // 422
+  //);
+  // return next(error);
   //}
 
   let hashedPassword;
@@ -68,43 +68,44 @@ const signup = async (req, res, next) => {
 
   const createdUser = new Person({
     _id: new mongoose.Types.ObjectId(),
-    name:name,
-    email:email,
+    name: name,
+    email: email,
     password: hashedPassword,
-    
-   
+
+
   });
 
-//  try {
-   await createdUser.save();
+  //  try {
+  await createdUser.save();
 
-    console.log(createdUser);
-    console.log("error in profile")
-    var newp = await new Profile({
-      createrId:ObjectId(createdUser._id),
-      Status:"None",
-       imagename:"default",
-       avatar:{
-        data: fs.readFileSync('uploads/' + "default.jpg"),
-        contentType:"image/png"
-       }
-    })
+  console.log(createdUser);
+  console.log("error in profile")
+  var newp = await new Profile({
+    createrId: ObjectId(createdUser._id),
+    Status: "None",
+    imagename: "default",
+    avatar: {
+      data: fs.readFileSync('uploads/' + "default.jpg"),
+      contentType: "image/png"
+    }
+  })
 
-    await newp.save()
-    console.log("adding profile id",newp._id)
-     await Person.updateOne({_id:createdUser._id},{profile:
-     newp._id
-    }).exec()
- // } catch (err) {
+  await newp.save()
+  console.log("adding profile id", newp._id)
+  await Person.updateOne({ _id: createdUser._id }, {
+    profile:
+      newp._id
+  }).exec()
+  // } catch (err) {
   //  const error = new HttpError(
-   //   'Signing up failed, please try again later.',
-    //  500
-    //);
-   // return next(error);
+  //   'Signing up failed, please try again later.',
+  //  500
+  //);
+  // return next(error);
   //}
 
 
-  
+
   res
     .status(201)
     .json(createdUser);
@@ -132,7 +133,7 @@ const login = async (req, res, next) => {
     );
     return next(error);
   }
-console.log("inside login")
+  console.log("inside login")
   let isValidPassword = false;
   try {
     isValidPassword = await bcrypt.compare(password, existingUser.password);
@@ -167,15 +168,19 @@ console.log("inside login")
     return next(error);
   }
 
-   res.locals.user={
+  const avatar = await Profile.findOne({ createrId: existingUser._id }).select("avatar")
+  console.log(avatar);
+  res.locals.user = {
     userId: existingUser.id,
     email: existingUser.email,
     token: token,
-    name:existingUser.name
+    name: existingUser.name,
+    avatar: avatar.avatar
+
   };
 
   console.log("login")
-  req.headers.authorization=token;
+  req.headers.authorization = token;
   next();
 };
 
