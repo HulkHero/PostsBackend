@@ -626,7 +626,7 @@ app.get("/myFriends/:userId", async (rek, res) => {
   }
   catch (err) {
     console.log("not found")
-    res.send("error2")
+    res.status(404).send("error2")
   }
 
 
