@@ -47,22 +47,19 @@ app.use((req, res, next) => {
 });
 
 
-app.get('/myPosts/:id', async (rek, res) => {
+app.get('/myPosts/:id', auth, async (rek, res) => {
   try {
     id = rek.params.id
     console.log("id: ", id)
     if (id) {
       const user = await Story.find({ creater: id })
       res.status(202).send(user)
-
-
     }
   }
   catch (error) {
+    console.log(error)
     res.status(400).json("ID not found.Your are not authorized")
   }
-
-
 
 
 
