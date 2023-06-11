@@ -4,8 +4,8 @@ const jwt = require('jsonwebtoken');
 const mongoose = require("mongoose")
 var ObjectId = require('mongodb').ObjectId;
 const HttpError = require('./http-error');
-const Person = require('./models');
-const Profile = require('./ProfileModel');
+const Person = require('./Models/models');
+const Profile = require('./Models/ProfileModel');
 const fs = require('fs');
 
 
