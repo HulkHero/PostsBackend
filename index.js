@@ -49,7 +49,7 @@ app.use((req, res, next) => {
 
 
 
-app.delete("/deletePost/:id/:userid", async (rek, res) => {
+app.delete("/deletePost/:id/:userid", auth, async (rek, res) => {
   console.log("id ")
   id = rek.params.id;
   userid = rek.params.userid;
@@ -618,7 +618,7 @@ app.put("/acceptRekuest", async (rek, res) => {
 })
 
 
-app.get("/myFriends/:userId", async (rek, res) => {
+app.get("/myFriends/:userId", auth, async (rek, res) => {
 
   try {
     var userId = rek.params.userId;
