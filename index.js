@@ -30,12 +30,6 @@ app.use(express.urlencoded({
 app.use(bodyParser.json());
 
 app.use(cors());
-// console.log("env", process.env.MONGODB_URL)
-mongoose.connect("mongodb+srv://Hulk:Hulk%401322@cluster0.cmdv1.mongodb.net/hulk2?retryWrites=true&w=majority").then((err, res) => console.log(err));
-
-app.use(cookieParser());
-
-
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader(
@@ -47,6 +41,10 @@ app.use((req, res, next) => {
   next();
 });
 
+// console.log("env", process.env.MONGODB_URL)
+mongoose.connect("mongodb+srv://Hulk:Hulk%401322@cluster0.cmdv1.mongodb.net/hulk2?retryWrites=true&w=majority").then((err, res) => console.log(err));
+
+app.use(cookieParser());
 
 
 app.delete("/deletePost/:id/:userid", auth, async (rek, res) => {
@@ -434,155 +432,75 @@ app.get("/addFriends", async (rek, res) => {
 
 app.post("/sendRekuest", async (rek, res) => {
 
-  senderId = rek.body.senderId;
-  targetId = rek.body.targetId;
-  // Friends.updateOne({createrId: senderId},{
-  //   createrId:senderId,
-  //   $push:{rekuestSents:targetId},
-  // },
-  // {upsert: true}) 
-  Friends.findOne({}, { createrId: senderId }, async (err, friend) => {
+  const senderId = req.body.senderId;
+  const receiverId = req.body.receiverId;
 
-    if (friend) {
-      console.log(" inside friend", friend);
-      await Friends.updateOne({ createrId: senderId }, { $push: { rekuestSents: targetId } })
+  try {
+    // Check if sender and receiver exist in the database
+    var sender = await Friends.findOne({ createrId: ObjectId(senderId) });
+    var receiver = await Friends.findOne({ createrId: ObjectId(receiverId) });
 
-
-
-      var frien = await Friends.findOne({ createrId: targetId }).clone().catch(function (err) { console.log(err) })
-
-      if (frien) {
-        console.log("friend", friend);
-        await Friends.updateOne({ createrId: targetId }, { $push: { rekuestRecieved: senderId } })
-        console.log("hello")
-
-      }
-      else {
-        console.log("inside else else")
-        const friends = new Friends({
-          createrId: ObjectId(targetId),
-          rekuestRecieved: [senderId]
-        })
-        await friends.save();
-
-        var frie = await Friends.findOne({ createrId: targetId })
-
-        console.log("fri ", frie._id)
-        ///storing in person friends
-        await Person.findOneAndUpdate({ _id: targetId }, { friends: frie._id })
-
-
-      }
-
-
-
-
-      //      Friends.findOne({},{createrId:targetId},async(err,friends)=>{
-      //       if(friends){
-      //         console.log("checking receiver exists",friend);
-      //         await Friends.updateOne({createrId:targetId},{$push:{rekuestRecieved:senderId}} )
-      //         console.log("hell")
-
-
-      //       }
-      //       else{
-      //         console.log("inside else else receiver does not exist")
-      //         const friends= await new Friends({
-      //          createrId:ObjectId(targetId),
-      //          rekuestRecieved:[senderId]
-      //         })
-      //        await friends.save();
-
-
-
-      //       }
-
-      //  })
-
-      console.log("hello")
-
+    if (!sender) {
+      console.log("sender not found")
+      const newSender = new Friends({
+        createrId: senderId,
+        rekuestSents: [receiverId],
+        friends: [],
+        rekuestRecieved: []
+      });
+      await newSender.save();
+      sender = await Friends.findOne({ createrId: senderId });
+      await Person.findOneAndUpdate({ _id: senderId }, { friends: sender._id })
 
     }
     else {
-      //first entry in friends
-      console.log("inside else")
-      const friends = new Friends({
-        createrId: ObjectId(senderId),
-        rekuestSents: [targetId]
-      })
-      await friends.save();
-
-      // finding new documnet id in freinds
-      var fri = await Friends.findOne({ createrId: senderId }).clone().catch(function (err) { console.log(err) })
-
-      console.log("fri ", fri._id)
-      ///storing in person friends
-      await Person.findOneAndUpdate({ _id: senderId }, { friends: fri._id }).clone().catch(function (err) { console.log(err) })
-
-      var frien = await Friends.findOne({ createrId: targetId }).clone().catch(function (err) { console.log(err) })
-
-      if (frien) {
-        console.log("friend", friend);
-        await Friends.updateOne({ createrId: targetId }, { $push: { rekuestRecieved: senderId } })
-        console.log("hello")
-
+      if (sender.friends.includes(receiverId)) {
+        return res.status(400).json({ message: 'Already friends' });
       }
-      else {
-        console.log("inside else else")
-        const friends = new Friends({
-          createrId: ObjectId(targetId),
-          rekuestRecieved: [senderId]
-        })
-        await friends.save();
-
-        var frie = await Friends.findOne({ createrId: targetId })
-
-        console.log("fri ", frie._id)
-        ///storing in person friends
-        await Person.findOneAndUpdate({ _id: targetId }, { friends: frie._id })
-
-
+      if (receiver.rekuestSents.includes(receiverId)) {
+        return res.status(400).json({ message: 'Already Sent' });
       }
-
-
-      //   Person.findOneAndUpdate({_id:senderId},{friends:})
-
-      //  Friends.findOne({},{createrId:targetId},async(err,friends)=>{
-      //       if(friends){
-      //         console.log("friend",friend);
-      //         await Friends.updateOne({createrId:targetId},{$push:{rekuestRecieved:senderId}} )
-      //         console.log("hello")
-
-
-      //       }
-      //       else{
-      //         console.log("inside else else")
-      //         const friends=  new Friends({
-      //          createrId:ObjectId(targetId),
-      //          rekuestRecieved:[senderId]
-      //         })
-      //        await friends.save();
-
-      //         var frie= await Friends.findOne({createrId:targetId})
-
-      //         console.log("fri ", frie._id)
-      //           ///storing in person friends
-      //         await Person.findOneAndUpdate({_id:targetId},{friends:frie._id})
-
-
-      //       }
-
-      //  }).clone().catch(function(err){ console.log(err)})
+      sender.rekuestSents.addToSet(receiverId);
+      await sender.save();
+      await Person.findOneAndUpdate({ _id: senderId }, { friends: sender._id })
 
     }
-  })
-  console.log("frienssd");
-  console.log("Updating", senderId, targetId);
+    if (!receiver) {
+      console.log("receiver not found")
+      const newReceiver = new Friends({
+        createrId: receiverId,
+        rekuestSents: [],
+        friends: [],
+        rekuestRecieved: [senderId]
 
-  res.send("hello")
+      });
+      await newReceiver.save();
+      receiver = await Friends.findOne({ createrId: receiverId });
+      await Person.findOneAndUpdate({ _id: receiverId }, { friends: receiver._id })
+
+    }
+    else {
+      if (receiver.friends.includes(senderId)) {
+        return res.status(400).json({ message: 'Already friends' });
+      }
+      if (receiver.rekuestRecieved.includes(senderId)) {
+        return res.status(400).json({ message: 'Already Sent' });
+      }
+      receiver.rekuestRecieved.addToSet(senderId);
+      await receiver.save();
+      await Person.findOneAndUpdate({ _id: receiverId }, { friends: receiver._id })
 
 
-})
+    }
+
+
+    return res.status(200).json({ message: 'Request sent successfully' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+
+});
 
 
 
@@ -686,7 +604,6 @@ app.get("/showFriends/:userId", async (rek, res) => {
             res.send({ img, user })
 
           }
-
         })
 
 
@@ -694,36 +611,6 @@ app.get("/showFriends/:userId", async (rek, res) => {
       }
     })
     console.log(profile, "profile updated")
-
-
-    // profile.friends.forEach(async (element) => {
-    //   console.log(element._id, "img")
-    //   var img1 = await Profile.findOne({ createrId: element }, { avatar: 1 })
-    //   console.log(img1._id, "avatar")
-    //   if (img1) {
-    //     img[count] = img1
-    //     img1 = null
-    //     // console.log(img,"img1")
-    //     count = count + 1;
-    //     console.log(count, "count")
-    //   }
-    //   console.log(count, "count1")
-
-    // });
-    // console.log(count, "count2")
-    // console.log("ppp", profile.friends.length)
-    // console.log("psda", count)
-    // if (profile.length) {
-
-
-
-    //   if (count == profile.friends.length) {
-    //     console.log("hello11")
-    //     console.log(img, "hello")
-    //   }
-    // }
-
-    // const img=await Profile.findMany({_id:profile._id})
 
 
   }
@@ -783,6 +670,76 @@ app.get("/getStatus/:id/:friendId", async (rek, res) => {
 })
 
 
+app.post('/send-request', async (req, res) => {
+  const senderId = req.body.senderId;
+  const receiverId = req.body.receiverId;
+
+  try {
+    // Check if sender and receiver exist in the database
+    var sender = await Friends.findOne({ createrId: ObjectId(senderId) });
+    var receiver = await Friends.findOne({ createrId: ObjectId(receiverId) });
+
+    if (!sender) {
+      console.log("sender not found")
+      const newSender = new Friends({
+        createrId: senderId,
+        rekuestSents: [receiverId],
+        friends: [],
+        rekuestRecieved: []
+      });
+      await newSender.save();
+      sender = await Friends.findOne({ createrId: senderId });
+      await Person.findOneAndUpdate({ _id: senderId }, { friends: sender._id })
+
+    }
+    else {
+      if (sender.friends.includes(receiverId)) {
+        return res.status(400).json({ message: 'Already friends' });
+      }
+      if (receiver.rekuestSents.includes(receiverId)) {
+        return res.status(400).json({ message: 'Already Sent' });
+      }
+      sender.rekuestSents.addToSet(receiverId);
+      await sender.save();
+      await Person.findOneAndUpdate({ _id: senderId }, { friends: sender._id })
+
+    }
+    if (!receiver) {
+      console.log("receiver not found")
+      const newReceiver = new Friends({
+        createrId: receiverId,
+        rekuestSents: [],
+        friends: [],
+        rekuestRecieved: [senderId]
+
+      });
+      await newReceiver.save();
+      receiver = await Friends.findOne({ createrId: receiverId });
+      await Person.findOneAndUpdate({ _id: receiverId }, { friends: receiver._id })
+
+    }
+    else {
+      if (receiver.friends.includes(senderId)) {
+        return res.status(400).json({ message: 'Already friends' });
+      }
+      if (receiver.rekuestRecieved.includes(senderId)) {
+        return res.status(400).json({ message: 'Already Sent' });
+      }
+      receiver.rekuestRecieved.addToSet(senderId);
+      await receiver.save();
+      await Person.findOneAndUpdate({ _id: receiverId }, { friends: receiver._id })
+
+
+    }
+
+
+    return res.status(200).json({ message: 'Request sent successfully' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
 
 
 app.listen(process.env.PORT || 5000, (rek, res) => {
@@ -795,3 +752,7 @@ app.listen(process.env.PORT || 5000, (rek, res) => {
 
 
 
+// db.friends.aggregate([{ $match: { createrId: ObjectId() } }])
+
+
+// db.friends.aggregate([{ $match: { createrId: ObjectId("630522ea41980b03a048f5f8") } }, { $lookup: { from: "profiles", localField: "friends", foreignField: "createrId", as: "dosts" } }])
