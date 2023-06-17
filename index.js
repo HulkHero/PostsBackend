@@ -513,19 +513,20 @@ app.get("/showRekuests/:userId", async (rek, res) => {
 })
 
 app.put("/acceptRekuest", async (rek, res) => {
-  var userId = rek.body.senderId;
-  var senId = rek.body.targetId;
-  // settings in user ->thanos->sent rekuest
+  var receiverId = rek.body.senderId;   //hammad
+  var senderId = rek.body.targetId;      //thanos
+  // hammad acceepts rekuest of thanos   
 
-  await Friends.findOneAndUpdate({ createrId: userId }, {
-    $pull: { rekuestSents: senId },
-    $push: { friends: senId }
+  //thanos the sender
+  await Friends.findOneAndUpdate({ createrId: senderId }, {
+    $pull: { rekuestSents: receiverId },
+    $push: { friends: receiverId }
   });
 
-  // setting in rekuest sender   ->hammad->rekuest recieved                          
-  await Friends.findOneAndUpdate({ createrId: senId }, {
-    $pull: { rekuestRecieved: userId },
-    $push: { friends: userId }
+  // hammad the receiver
+  await Friends.findOneAndUpdate({ createrId: receiverId }, {
+    $pull: { rekuestRecieved: senderId },
+    $push: { friends: senderId }
   });
 
 
