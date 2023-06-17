@@ -74,9 +74,7 @@ app.post("/addComment/:postId/:userId", async (rek, res) => {
   const postId = rek.params.postId;
   const userId = rek.params.userId;
   const comment = rek.body.text;
-  console.log("comment: ", comment)
-  console.log("postId: ", postId)
-  console.log("userId: ", userId)
+
   if (postId && userId && comment) {
     const newComment = new Comments({
       _id: new mongoose.Types.ObjectId(),
@@ -570,6 +568,25 @@ app.get("/myFriends/:userId", auth, async (rek, res) => {
   }
 
 
+})
+app.delete("/deleteFriend/:userId/:friendId", async (rek, res) => {
+  const userId = rek.params.userId;
+  const friendId = rek.params.friendId;
+  try {
+    const user = await Friends.findOne({ createrId: userId })
+    const friend = await Friends.findOne({ createrId: friendId })
+    user.friends.pull(friendId)
+    friend.friends.pull(userId)
+    await user.save()
+    await friend.save()
+    res.status(200).send("done")
+
+  }
+  catch (err) {
+    console.log(err)
+    res.send("error")
+
+  }
 })
 
 app.get("/showFriends/:userId", async (rek, res) => {
