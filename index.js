@@ -180,14 +180,6 @@ app.get("/batchData/:skip/:limit", async (rek, res) => {
         res.status(300).send("not found")
       }
     })
-    // await Story.find().sort({ _id: -1 }).skip(skip).limit(limit).then((result) => {
-    //   if (result.length > 0) {
-    //     res.send(result)
-    //   }
-    //   else {
-    //     res.status(300).send("not found")
-    //   }
-    // })
   }
   catch (error) {
     console.log(error, "err")
@@ -292,6 +284,7 @@ app.post('/addStory', uploadProfile.single("image"), async (rek, res) => {
   console.log("entering stories")
   heading = rek.body.heading;
   caption = rek.body.caption;
+  allowComments = rek.body.allowComments;
   console.log(rek.file, "file")
   var buffer;
   var imagename;
@@ -316,6 +309,7 @@ app.post('/addStory', uploadProfile.single("image"), async (rek, res) => {
     date: Date.now(),
 
     creatername: creatername,
+    allowComments: allowComments,
     imagename: imagename,
     image: {
       data: buffer,
@@ -499,8 +493,6 @@ app.post("/sendRekuest", async (rek, res) => {
   }
 
 });
-
-
 
 app.get("/showRekuests/:userId", async (rek, res) => {
 
