@@ -261,30 +261,15 @@ const uploadProfile = multer({
   }
 })
 
-app.get('/myPosts/:id', async (rek, res) => {
-  try {
-    id = rek.params.id
-    console.log("id: ", id)
-    if (id) {
-      const user = await Story.find({ creater: id })
-      res.send(user)
-    }
-  }
-  catch (error) {
-    console.log(error)
-    res.status(400).json("ID not found.Your are not authorized")
-  }
 
-
-
-})
 
 
 app.post('/addStory', uploadProfile.single("image"), async (rek, res) => {
   console.log("entering stories")
-  heading = rek.body.heading;
-  caption = rek.body.caption;
-  allowComments = rek.body.allowComments;
+  const heading = rek.body.heading;
+  const caption = rek.body.caption;
+  const allowComments = Boolean(rek.body.allowComment);
+  console.log(allowComments, "allowComments")
   console.log(rek.file, "file")
   var buffer;
   var imagename;
@@ -749,6 +734,24 @@ app.post('/send-request', async (req, res) => {
     return res.status(500).json({ message: 'Server error' });
   }
 });
+
+app.get('/myPosts/:id', async (rek, res) => {
+  try {
+    id = rek.params.id
+    console.log("id: ", id)
+    if (id) {
+      const user = await Story.find({ creater: id })
+      res.send(user)
+    }
+  }
+  catch (error) {
+    console.log(error)
+    res.status(400).json("ID not found.Your are not authorized")
+  }
+
+
+
+})
 
 
 
