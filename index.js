@@ -553,6 +553,24 @@ app.get("/myFriends/:userId", auth, async (rek, res) => {
 
 
 })
+app.get('/myPosts/:id', auth, async (rek, res) => {
+  try {
+    id = rek.params.id
+    console.log("id: ", id)
+    if (id) {
+      const user = await Story.find({ creater: id })
+      res.send(user)
+    }
+  }
+  catch (error) {
+    console.log(error)
+    res.status(400).json("ID not found.Your are not authorized")
+  }
+
+
+
+})
+
 app.delete("/deleteFriend/:userId/:friendId", async (rek, res) => {
   const userId = rek.params.userId;
   const friendId = rek.params.friendId;
@@ -621,6 +639,7 @@ app.get("/showFriends/:userId", async (rek, res) => {
 
 
 })
+
 
 app.get("/showAddFriends/:searche", async (rek, res) => {
   var searche = rek.params.searche;
@@ -741,23 +760,6 @@ app.post('/send-request', async (req, res) => {
   }
 });
 
-app.get('/myPosts/:id', async (rek, res) => {
-  try {
-    id = rek.params.id
-    console.log("id: ", id)
-    if (id) {
-      const user = await Story.find({ creater: id })
-      res.send(user)
-    }
-  }
-  catch (error) {
-    console.log(error)
-    res.status(400).json("ID not found.Your are not authorized")
-  }
-
-
-
-})
 
 
 
