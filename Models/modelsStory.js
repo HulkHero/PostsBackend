@@ -17,7 +17,7 @@ const storySchema = Schema({
      },
      date: { type: Object },
      creatername: { type: String },
-     allowComments: [{ type: Boolean }, { default: true }],
+     allowComments: { type: Boolean, default: true },
      imagename: { type: String },
      image: {
           data: Buffer,

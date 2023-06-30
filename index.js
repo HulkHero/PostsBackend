@@ -310,9 +310,6 @@ app.post('/addStory', uploadProfile.single("image"), async (rek, res) => {
 
 // data: fs.readFileSync('uploads/' + rek.file.filename),
 app.post('/avatar', uploadProfile.single('avatar'), async (rek, res) => {
-  console.log("he")
-  const buffer = await sharp(rek.file.buffer).resize({ width: 250, height: 250 }).png().toBuffer()
-  console.log(buffer)
   console.log(rek.body.status)
   const cid = rek.body.createrId
   const status = rek.body.status
@@ -320,16 +317,27 @@ app.post('/avatar', uploadProfile.single('avatar'), async (rek, res) => {
   {
     if (docs.length > 0) //if exists
     {
+      if (rek.file) {
+        const buffer = await sharp(rek.file.buffer).resize({ width: 250, height: 250 }).png().toBuffer()
+        await Profile.updateOne({ createrId: cid }, {
+          Status: status,
+          avatar: {
+            data: buffer,
+            ContentType: 'image/png',
+          }
+        })
+        console.log(docs); // print out what it sends back
+        res.send("saved")
+      }
+      else {
+        await Profile.updateOne({ createrId: cid }, {
+          Status: status,
+        })
+        console.log(docs); // print out what it sends back
+        res.send("saved")
+      }
 
-      await Profile.updateOne({ createrId: cid }, {
-        Status: status,
-        avatar: {
-          data: buffer,
-          ContentType: 'image/png',
-        }
-      })
-      console.log(docs); // print out what it sends back
-      res.send("saved")
+
     }
     else // if it does not 
     {
@@ -345,7 +353,6 @@ app.post('/avatar', uploadProfile.single('avatar'), async (rek, res) => {
       newProfile.save()
       Person.updateOne({ _id: cid }, { profile: newProfile._id }).exec()
       res.send("saved")
-      console.log("Not in docs");
     }
   });
 
@@ -360,7 +367,6 @@ app.get("/getProfile/:id", async (rek, res) => {
     const cid = rek.params.id
     Profile.find({ createrId: cid }).then((response) => {
       if (response.length > 0) {
-        console.log("hello")
         res.send(response)
       }
       else {
