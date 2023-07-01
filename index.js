@@ -29,7 +29,10 @@ app.use(express.urlencoded({
 }));
 //app.use(bodyParser.json());
 
-app.use(cors());
+app.use(cors({
+  origin: ["http://localhost:3000", "https://hulkposts.netlify.app/"],
+
+}));
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader(
